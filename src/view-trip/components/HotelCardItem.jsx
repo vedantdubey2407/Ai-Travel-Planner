@@ -9,21 +9,30 @@ function HotelCardItem({ hotel }) {
     if (hotel) GetPlacePhoto();
   }, [hotel]);
 
-  const GetPlacePhoto = async () => {
-    try {
-      const data = { textQuery: hotel?.hotelName };
-      const resp = await GetPlaceDetails(data);
-      if (resp?.data?.places?.[0]?.photos?.[0]?.name) {
-        const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', resp.data.places[0].photos[0].name);
-        setPhotoUrl(PhotoUrl);
-      }
-    } catch (error) {
-      console.error("Failed to fetch hotel photo:", error);
+ const GetPlacePhoto = async () => {
+  try {
+    const data = { textQuery: hotel?.hotelName };
+    const resp = await GetPlaceDetails(data);
+
+    const rawName = resp?.data?.places?.[0]?.photos?.[0]?.name;
+    const photoRef = rawName?.split("/").pop(); // Extract only the photo reference
+
+    if (photoRef) {
+      const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', photoRef);
+      setPhotoUrl(PhotoUrl);
+    } else {
+      console.warn("⚠️ No photo found for:", hotel?.hotelName);
+      setPhotoUrl("https://via.placeholder.com/130");
     }
-  };
+  } catch (error) {
+    console.error("❌ Failed to fetch hotel photo:", error);
+    setPhotoUrl("https://via.placeholder.com/130");
+  }
+};
+
 
   return (
-    <div>
+    <div className='flex items-center gap-5 my-5'>
       <Link to={'https://www.google.com/maps/search/?api=1&query=' + hotel.hotelName + "," + hotel?.hotelAddress} target='_blank'>
         <div className='hover:scale-105 transition-all cursor-pointer'>
           <img 

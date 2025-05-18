@@ -5,31 +5,43 @@ import { Button } from '@/components/ui/button';
 
 function InfoSection({ trip }) {
   const [photoUrl, setPhotoUrl] = useState();
+  console.log("Photo URL:", photoUrl);
+
+  
 
   useEffect(() => {
     if (trip) GetPlacePhoto();
   }, [trip]);
 
   const GetPlacePhoto = async () => {
-    try {
-      const data = { textQuery: trip?.userSelection?.location?.name };
-      const resp = await GetPlaceDetails(data);
-      if (resp?.data?.places?.[0]?.photos?.[0]?.name) {
-        const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', resp.data.places[0].photos[0].name);
-        setPhotoUrl(PhotoUrl);
-      }
-    } catch (error) {
-      console.error("Failed to fetch location photo:", error);
+  try {
+    const data = { textQuery: trip?.userSelection?.location?.name };
+    const resp = await GetPlaceDetails(data);
+
+    const rawName = resp?.data?.places?.[0]?.photos?.[0]?.name;
+    const photoRef = rawName?.split("/").pop(); // Extract just the photo reference
+
+    if (photoRef) {
+      const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', photoRef);
+      setPhotoUrl(PhotoUrl);
+    } else {
+      console.warn("⚠️ No photo found for:", trip?.userSelection?.location?.name);
+      setPhotoUrl("https://via.placeholder.com/130");
     }
-  };
+  } catch (error) {
+    console.error("❌ Failed to fetch location photo:", error);
+    setPhotoUrl("https://via.placeholder.com/130");
+  }
+};
+
 
   return (
-    <div>
+    <div className=''>
       <img 
-        src="https://plus.unsplash.com/premium_photo-1682390303252-4e1e31e692e4?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8dHJpcHxlbnwwfHwwfHx8MA%3D%3D" 
-        className='h-[340px] w-full object-cover rounded-xl' 
-        alt={trip?.userSelection?.location?.name}
-      />
+          src={photoUrl || "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} 
+          className=' h-[340px] rounded-xl w-full object-cover' 
+          
+        />
       <div className='flex justify-between items-center'>
         <div className='my-5 flex flex-col gap-2'>
           <h2 className='font-bold text-2xl'>{trip?.userSelection?.location?.name}</h2>

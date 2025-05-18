@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_GEMINI_API_KEY);
 
 export const main = async (FINAL_PROMPT, locationName) => {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-04-17' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
   // Strong prompt to enforce structured JSON response only
   const enhancedPrompt = `
